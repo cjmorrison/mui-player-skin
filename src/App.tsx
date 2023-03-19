@@ -14,7 +14,7 @@ class App extends React.Component {
             has basic playback and a playback speed seting with a focus on
             accessibility compliance.
           </p>
-          <MpsPlayer src="./sampleAudio.mp3"></MpsPlayer> 
+          <MpsPlayer></MpsPlayer> 
         </header>
       </div>
     );

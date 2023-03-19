@@ -14,7 +14,7 @@ import VolumeDownIcon from "@mui/icons-material/VolumeDown";
 import PauseIcon from "@mui/icons-material/Pause";
 
 interface PropType {
-  src: string;
+  src?: string;
 }
 interface StateType {
   audioPlaying: boolean;
@@ -28,6 +28,7 @@ interface StateType {
 class MpsPlayer extends React.Component<PropType, StateType> {
   ref: any = null;
   posTimer: NodeJS.Timer | null = null;
+  usingAudioSrc: string = ""
   state = {
     audioPlaying: false,
     audioPos: 0,
@@ -45,6 +46,14 @@ class MpsPlayer extends React.Component<PropType, StateType> {
   componentDidMount = () => {
     console.log("MpsPlayer ready");
     this.posTimer = setInterval(this.posCheck, 10);
+
+    if(!(window as any).mps_srcOverride) {
+      this.usingAudioSrc = (window as any).mps_srcOverride as string
+    } else if(this.props.src) {
+      this.usingAudioSrc = this.props.src
+    } else {
+      this.usingAudioSrc = "./sampleAudio.mp3"
+    }
   };
 
   posCheck = () => {
@@ -258,7 +267,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
         <audio
           ref={this.ref}
           className="mps_audTag"
-          src={this.props.src}
+          src={this.usingAudioSrc}
         ></audio>
       </Box>
     );
