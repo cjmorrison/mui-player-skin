@@ -28,7 +28,7 @@ interface StateType {
 class MpsPlayer extends React.Component<PropType, StateType> {
   ref: any = null;
   posTimer: NodeJS.Timer | null = null;
-  usingAudioSrc: string = ""
+  usingAudioSrc: string = "";
   state = {
     audioPlaying: false,
     audioPos: 0,
@@ -47,12 +47,15 @@ class MpsPlayer extends React.Component<PropType, StateType> {
     console.log("MpsPlayer ready");
     this.posTimer = setInterval(this.posCheck, 10);
 
-    if(!(window as any).mps_srcOverride) {
-      this.usingAudioSrc = (window as any).mps_srcOverride as string
-    } else if(this.props.src) {
-      this.usingAudioSrc = this.props.src
+    if ((window as any).mps_srcOverride) {
+      this.usingAudioSrc = (window as any).mps_srcOverride as string;
+    }
+    if ((window as any).parent && (window as any).parent.mps_srcOverride) {
+      this.usingAudioSrc = (window as any).parent.mps_srcOverride as string;
+    } else if (this.props.src) {
+      this.usingAudioSrc = this.props.src;
     } else {
-      this.usingAudioSrc = "./sampleAudio.mp3"
+      this.usingAudioSrc = "./sampleAudio.mp3";
     }
   };
 
@@ -67,7 +70,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
       });
     }
 
-    if (this.ref.current.currentTime != this.state.audioPos) {
+    if (this.ref.current.currentTime !== this.state.audioPos) {
       this.setState({
         audioPos: this.ref.current.currentTime,
       });
@@ -95,15 +98,18 @@ class MpsPlayer extends React.Component<PropType, StateType> {
   };
 
   setVolume = (event: Event, newValue: number | number[]) => {
-    this.setState({
-      volume: Number(newValue),
-    }, () => {
-      if (!this.ref || !this.ref.current) {
-        return;
-      } 
+    this.setState(
+      {
+        volume: Number(newValue),
+      },
+      () => {
+        if (!this.ref || !this.ref.current) {
+          return;
+        }
 
-      this.ref.current.volume = this.state.volume / 100
-    });
+        this.ref.current.volume = this.state.volume / 100;
+      }
+    );
   };
 
   togglePlayAudio = () => {
@@ -132,7 +138,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
     if (typeof newValue === "number") {
       this.setState(
         {
-          audioPos: newValue,
+          audioPos: (newValue / 100) * this.ref.current.duration,
         },
         () => {
           this.ref.current.currentTime = this.state.audioPos;
@@ -141,16 +147,22 @@ class MpsPlayer extends React.Component<PropType, StateType> {
     }
   };
 
-  setAudioPBS = (setTo:number) => {
+  setAudioPBS = (setTo: number) => {
     if (!this.ref || !this.ref.current) {
       return;
-    } 
+    }
 
-    this.ref.current.playbackRate  = setTo
-    this.closeSpeedMenu()
-  }
+    this.ref.current.playbackRate = setTo;
+    this.closeSpeedMenu();
+  };
 
   render() {
+    let audioPos = 0;
+
+    if (this.ref && this.ref.current) {
+      audioPos = (this.state.audioPos / this.ref.current.duration) * 100;
+    }
+
     const displayPlayFab = () => {
       if (this.state.audioPlaying) {
         return (
@@ -212,7 +224,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
           className="mps_slider"
           aria-label="Audio posistion"
           defaultValue={0}
-          value={this.state.audioPos}
+          value={audioPos}
           onChange={this.setAudioPos}
           //   color="secondary"
         />
@@ -251,16 +263,63 @@ class MpsPlayer extends React.Component<PropType, StateType> {
           MenuListProps={{
             "aria-labelledby": "playbackSpeed-button",
           }}
-      
         >
-          <MenuItem onClick={()=>{this.setAudioPBS(0.25)}}>0.25</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(0.50)}}>0.50</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(0.75)}}>0.75</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(1)}}>Normal</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(1.25)}}>1.25</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(1.50)}}>1.50</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(1.75)}}>1.75</MenuItem>
-          <MenuItem onClick={()=>{this.setAudioPBS(2)}}>x2</MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(0.25);
+            }}
+          >
+            0.25
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(0.5);
+            }}
+          >
+            0.50
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(0.75);
+            }}
+          >
+            0.75
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(1);
+            }}
+          >
+            Normal
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(1.25);
+            }}
+          >
+            1.25
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(1.5);
+            }}
+          >
+            1.50
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(1.75);
+            }}
+          >
+            1.75
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              this.setAudioPBS(2);
+            }}
+          >
+            x2
+          </MenuItem>
         </Menu>
 
         {displayVolume()}
