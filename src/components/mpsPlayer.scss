@@ -1,6 +1,5 @@
 .mps_container {
-  background-color: #aaaaaa;
-  border-radius: 20px;
+  background-color: #d8d8d8;
   padding: 10px;
 }
 
@@ -8,9 +7,18 @@
   width: calc(100% - 192px - 60px);
   margin: 0px 30px;
   top: 9px;
+
+  &.useDrawer {
+    width: calc(100% - 130px - 60px);
+  }
 }
 #mps_volume {
   margin-top: 10px;
   margin-left: 50%;
-  text-align: right;
+
+  &.useDrawer {
+    margin-top: 20px;
+    margin-left: 20px;
+    width: 50%;
+  }
 }
