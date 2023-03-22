@@ -308,11 +308,6 @@ class MpsPlayer extends React.Component<PropType, StateType> {
           </Menu>
 
           {displayVolume()}
-          <audio
-            ref={this.ref}
-            className="mps_audTag"
-            src={this.usingAudioSrc}
-          ></audio>
         </Box>
       );
     };
@@ -402,8 +397,23 @@ class MpsPlayer extends React.Component<PropType, StateType> {
       }
     };
 
+    const buildAudioTag = () => {
+      return (
+        <audio
+          ref={this.ref}
+          className="mps_audTag"
+          src={this.usingAudioSrc}
+        ></audio>
+      );
+    };
+
     if (!this.props.useDrawer) {
-      return <div>{buildContainer()}</div>;
+      return (
+        <div>
+          {buildContainer()}
+          {buildAudioTag()}
+        </div>
+      );
     } else {
       return (
         <Box>
@@ -427,6 +437,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
             >
               {buildContainer()}
             </Drawer>
+            {buildAudioTag()}
           </ThemeProvider>
         </Box>
       );
