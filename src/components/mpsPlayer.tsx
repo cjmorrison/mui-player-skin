@@ -29,12 +29,18 @@ interface StateType {
   speedMenuOpen: boolean;
   volMenuOpen: boolean;
   speedMenuAnchorEl: null | HTMLElement;
+  langData: object;
 }
 
 class MpsPlayer extends React.Component<PropType, StateType> {
   ref: any = null;
   posTimer: NodeJS.Timer | null = null;
   usingAudioSrc: string = "";
+
+  supportedLangs: Array<string> = ["en", "fr-ca"];
+  defaultLang: string = "en";
+  langSelection: string = this.defaultLang;
+
   state = {
     audioPlaying: false,
     audioPos: 0,
@@ -43,6 +49,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
     speedMenuOpen: false,
     volMenuOpen: false,
     speedMenuAnchorEl: null,
+    langData: {},
   };
 
   theme = createTheme({
@@ -64,6 +71,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
   }
 
   componentDidMount = () => {
+    this.getLangData();
     console.log("MpsPlayer ready");
     this.posTimer = setInterval(this.posCheck, 10);
 
@@ -83,6 +91,36 @@ class MpsPlayer extends React.Component<PropType, StateType> {
         volMenuOpen: true,
       });
     }
+  };
+
+  getLangData = () => {
+    return new Promise((resolve, reject) => {
+      if ((window as any).mps_langOverride) {
+        if (
+          this.supportedLangs.indexOf((window as any).mps_langOverride) === -1
+        ) {
+          this.langSelection = (window as any).mps_srcOverride as string;
+        } else {
+          console.warn(
+            `provided lang overide ${
+              (window as any).mps_srcOverride
+            } is not availible`
+          );
+        }
+      }
+
+      fetch(`./lang/${this.langSelection}.json`)
+        .then((response) => response.json())
+        .then((publicLangData: object) => {
+          this.setState({ langData: publicLangData }, () => {
+            resolve(this.state.langData);
+          });
+        });
+    });
+  };
+
+  langKey = (key: string) => {
+    return this.state.langData[key] as string;
   };
 
   posCheck = () => {
@@ -214,7 +252,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
           <Slider
             id="mps_audioPos"
             className={audSliderClass}
-            aria-label="Audio posistion"
+            aria-label={this.langKey("audioPosistion")}
             defaultValue={0}
             value={audioPos}
             onChange={this.setAudioPos}
@@ -223,11 +261,11 @@ class MpsPlayer extends React.Component<PropType, StateType> {
 
           {displayVolumeToggle()}
 
-          <Tooltip title="Playback Speed" placement="bottom">
+          <Tooltip title={this.langKey("playbackSpeed")} placement="bottom">
             <Fab
               color="primary"
               className="mps_fab"
-              aria-label="adjust playback speed"
+              aria-label={this.langKey("playbackSpeed")}
               aria-controls={
                 this.state.speedMenuOpen ? "playbackSpeed" : undefined
               }
@@ -315,11 +353,11 @@ class MpsPlayer extends React.Component<PropType, StateType> {
     const displayPlayFab = () => {
       if (this.state.audioPlaying) {
         return (
-          <Tooltip title="Pause" placement="bottom">
+          <Tooltip title={this.langKey("pause")} placement="bottom">
             <Fab
               className="mps_fab"
               color="primary"
-              aria-label="stop audio"
+              aria-label={this.langKey("pause")}
               onClick={this.togglePlayAudio}
               sx={{ mr: 1 }}
             >
@@ -330,11 +368,11 @@ class MpsPlayer extends React.Component<PropType, StateType> {
       }
 
       return (
-        <Tooltip title="Play" placement="bottom">
+        <Tooltip title={this.langKey("play")} placement="bottom">
           <Fab
             className="mps_fab"
             color="primary"
-            aria-label="play audio"
+            aria-label={this.langKey("play")}
             onClick={this.togglePlayAudio}
             sx={{ mr: 1 }}
           >
@@ -347,11 +385,11 @@ class MpsPlayer extends React.Component<PropType, StateType> {
     const displayVolumeToggle = () => {
       if (!this.props.useDrawer) {
         return (
-          <Tooltip title="Volume Settings" placement="bottom">
+          <Tooltip title={this.langKey("volumeSettings")} placement="bottom">
             <Fab
               color="primary"
               className="mps_fab"
-              aria-label="open volume"
+              aria-label={this.langKey("volumeSettings")}
               aria-controls={this.state.volMenuOpen ? "volume-menu" : undefined}
               aria-haspopup="true"
               aria-expanded={this.state.volMenuOpen ? "true" : undefined}
@@ -384,7 +422,7 @@ class MpsPlayer extends React.Component<PropType, StateType> {
             >
               <VolumeDownIcon color="primary" />
               <Slider
-                aria-label="Volume"
+                aria-label={this.langKey("volume")}
                 value={this.state.volume}
                 onChange={this.setVolume}
               />
@@ -418,12 +456,15 @@ class MpsPlayer extends React.Component<PropType, StateType> {
       return (
         <Box>
           <ThemeProvider theme={this.theme}>
-            <Tooltip title="Audio Settings" placement="bottom-end">
+            <Tooltip
+              title={this.langKey("audioSettings")}
+              placement="bottom-end"
+            >
               <Fab
                 className="mps_fab"
                 size="medium"
                 color="primary"
-                aria-label="play audio"
+                aria-label={this.langKey("audioSettings")}
                 onClick={this.toggleDrawer(true)}
                 sx={{ mr: 1 }}
               >

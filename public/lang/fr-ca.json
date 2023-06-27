@@ -1,0 +1,9 @@
+{
+    "play": "Jouer",
+    "pause": "Pause",
+    "volume": "Volume",
+    "volumeSettings": "Réglage du volume",
+    "playbackSpeed": "Vitesse de lecture",
+    "audioSettings": "Réglages audio",
+    "audioPosistion": "Position audio"
+}
